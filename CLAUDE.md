@@ -5,10 +5,12 @@ Die Tages-App selbst bleibt unverändert, hier wird eigenständig weitergebaut.
 
 ## Was die App kann
 - **Gym**: Datumsleiste (‹ Heute ›) zum Nachtragen, Einheiten A/B/C je nach Split (der Reihe nach, manuell umstellbar),
-  pro Übung 2 Sätze mit kg und Wdh. (vorausgefüllt vom letzten Training, zählt erst nach ✓ oder Änderung),
+  pro Übung N Sätze (einstellbar) mit kg und Wdh. (vorausgefüllt vom letzten Training, zählt erst nach ✓ oder Änderung),
   Hinweise „Gewicht erhöhen/reduzieren“, Plan bearbeiten (▲ ▼ ändern ✕ +, Gewichtsart kg / je Hand / Scheiben gesamt / nur Wdh. / nur abhaken).
 - **Fortschritt**: Wochen-Ring (x von Wochenziel), „Insgesamt: N Einheiten“, Gesamtkurve (Ø aller Übungen in %, Kraftwert nach Epley `kg × (1 + wdh/30)`), kleine Linie pro Übung.
-- **Einstellungen** (Zahnrad): Split (Ganzkörper / 2er / 3er) und Trainings pro Woche.
+- **Pausen-Timer**: startet nach jedem ✓, Leiste unten, vibriert am Ende (rechnet mit der End-Uhrzeit, stimmt also auch nach Sperren des Handys).
+- **Verlauf**: frühere Trainings (ohne heute), neuestes zuerst, aufklappbar, „Diesen Tag öffnen“ springt zum Nachtragen hin.
+- **Einstellungen** (Zahnrad): Split (Ganzkörper / 2er / 3er), Trainings pro Woche, Sätze pro Übung (1–6, Standard 2), Pause in Sekunden (0 = aus, Standard 90).
 
 Speicher (localStorage, Vorsilbe `gym-app-`, weil alle Seiten unter `vctwkb2zb8-debug.github.io` denselben Speicher teilen):
 `gym-plan`, `gym`, `einstellungen`.

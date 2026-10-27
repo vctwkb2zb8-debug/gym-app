@@ -626,6 +626,41 @@ details[open] > summary::after {
   fill: var(--akzent);
 }
 
+/* Verlauf: gleiche Trennlinie wie beim Fortschritt, jeder Tag aufklappbar */
+#gym-verlauf {
+  margin-top: 20px;
+  border-top: 1px solid var(--rand);
+  padding-top: 18px;
+}
+
+#gym-verlauf > summary {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+#gym-verlauf details {
+  border-bottom: 1px solid var(--rand);
+  padding: 14px 0;
+}
+
+#gym-verlauf details:first-child {
+  margin-top: 10px;
+  border-top: 1px solid var(--rand);
+}
+
+/* Eine Übung: Name links, Sätze rechts */
+.gym-verlauf-zeile {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 15px;
+}
+
+.gym-verlauf-zeile .hinweis {
+  text-align: right;
+}
+
 
 /* ===== Pausen-Timer: Leiste ganz unten ===== */
 #pause {

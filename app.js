@@ -346,6 +346,7 @@ function zeigeGym() {
     zeigeGymUebungen(plan, einheit, tag);
   }
   zeigeGymFortschritt();
+  zeigeGymVerlauf();
 }
 
 // Auswahl der Einheit (nur bei Split 2 oder 3): ein Knopf pro Einheit
@@ -983,6 +984,80 @@ function zeigeGymFortschritt() {
     }
   }
 }
+
+
+// --- Verlauf: frühere Trainings, neuestes zuerst ---
+// Jeder Tag ist aufklappbar und zeigt die Sätze. „Diesen Tag öffnen“ springt
+// mit der Datumsleiste dorthin, z. B. um etwas nachzutragen.
+// Heute steht nicht drin – das siehst du ja oben.
+
+function zeigeGymVerlauf() {
+  const inhalt = document.getElementById("gym-verlauf-inhalt");
+  inhalt.innerHTML = "";
+  const gym = laden("gym", {});
+  const plan = ladeGymPlan();
+
+  // Alle Übungen aller Einheiten, damit wir zu einer id den Namen finden
+  const alleUebungen = [];
+  for (const einheit of GYM_EINHEITEN) alleUebungen.push(...plan[einheit].uebungen);
+
+  const tage = Object.keys(gym)
+    .filter(function (d) { return d !== heute() && gymTrainiert(d); })
+    .sort()
+    .reverse();
+
+  if (tage.length === 0) {
+    const leer = document.createElement("p");
+    leer.className = "hinweis";
+    leer.textContent = "Noch keine früheren Trainings.";
+    inhalt.append(leer);
+    return;
+  }
+
+  for (const datum of tage) {
+    const tag = gym[datum];
+    const block = document.createElement("details");
+    const ueberschrift = document.createElement("summary");
+    const einheit = GYM_EINHEITEN.includes(tag.einheit) ? tag.einheit : "A";
+    ueberschrift.textContent = tagesName(datum) + " · " + gymName(plan, einheit);
+    block.append(ueberschrift);
+
+    // Eine Zeile pro Übung (gelöschte Übungen fallen raus, wie im Fortschritt)
+    for (const uebung of alleUebungen) {
+      const saetze = ((tag.saetze || {})[uebung.id] || []).filter(gymSatzGemacht);
+      const abgehakt = (tag.haken || {})[uebung.id];
+      if (saetze.length === 0 && !abgehakt) continue;
+
+      const zeile = document.createElement("div");
+      zeile.className = "gym-verlauf-zeile";
+      const name = document.createElement("span");
+      name.textContent = uebung.name;
+      const werte = document.createElement("span");
+      werte.className = "hinweis";
+      werte.textContent = abgehakt
+        ? "erledigt"
+        : saetze.map(function (s) { return satzText(s, gymNurWdh(uebung)); }).join(" · ");
+      zeile.append(name, werte);
+      block.append(zeile);
+    }
+
+    const oeffnen = document.createElement("button");
+    oeffnen.type = "button";
+    oeffnen.className = "nebenknopf bearbeiten-knopf";
+    oeffnen.textContent = "Diesen Tag öffnen";
+    oeffnen.addEventListener("click", function () {
+      waehleTag(datum);
+      window.scrollTo(0, 0);
+    });
+    block.append(oeffnen);
+    inhalt.append(block);
+  }
+}
+
+// Beim Aufklappen neu aufbauen, damit gerade Nachgetragenes schon drinsteht
+document.getElementById("gym-verlauf").addEventListener("toggle", function () {
+  if (this.open) zeigeGymVerlauf();
+});
 
 
 // ===== Einstellungen =====
