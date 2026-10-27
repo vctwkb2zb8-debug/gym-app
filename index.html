@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <!-- Zeichensatz: damit Umlaute (ä, ö, ü) richtig angezeigt werden -->
+  <meta charset="UTF-8">
+  <!-- Damit die Seite auf dem Handy nicht winzig verkleinert dargestellt wird -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Gym</title>
+  <!-- Verbindet die Seite mit der Datei für das Aussehen -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Der „Ausweis“ der App: Name, Symbol, Farben (für „Zum Startbildschirm“) -->
+  <link rel="manifest" href="manifest.json">
+  <!-- Symbol für iPhone/iPad und für den Browser-Tab -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" href="icon-192.png">
+  <!-- Farbe der Statusleiste oben auf dem Handy -->
+  <meta name="theme-color" content="#000000">
+</head>
+<body>
+  <section id="gym">
+    <!-- Überschrift mit Zahnrad rechts daneben: öffnet die Einstellungen -->
+    <div class="kopfzeile">
+      <h2>Gym</h2>
+      <button id="einstellungen-knopf" class="symbolknopf" title="Einstellungen" aria-label="Einstellungen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+    </div>
+
+    <div class="tagesleiste">
+      <button class="tag-zurueck" title="Vorheriger Tag">‹</button>
+      <span class="tag-anzeige"></span>
+      <button class="tag-vor" title="Nächster Tag">›</button>
+    </div>
+    <p class="frueherer-tag versteckt">
+      Du bearbeitest einen früheren Tag. <button class="zu-heute">Zurück zu heute</button>
+    </p>
+
+    <!-- Auswahl der Einheit (A/B/C), nur bei Split 2 oder 3 sichtbar. Füllt app.js. -->
+    <div id="gym-einheiten" class="segment versteckt"></div>
+    <p id="gym-hinweis" class="hinweis"></p>
+
+    <!-- Die Übungen füllt app.js automatisch -->
+    <div id="gym-uebungen"></div>
+
+    <!-- Plan ändern: verschieben, ändern, entfernen und neue Übungen -->
+    <button id="gym-bearbeiten-knopf" class="nebenknopf bearbeiten-knopf">Plan bearbeiten</button>
+
+    <!-- Fortschritt: Plan-Ring, Gesamtkurve und eine kleine Linie pro Übung -->
+    <details id="gym-fortschritt" open>
+      <summary>Fortschritt</summary>
+      <div id="gym-fortschritt-inhalt"></div>
+    </details>
+  </section>
+
+  <!-- Einstellungen: erreichbar über das Zahnrad. Alles wird nur auf diesem Gerät gespeichert. -->
+  <section id="einstellungen" class="versteckt">
+    <div class="kopfzeile">
+      <h2>Einstellungen</h2>
+      <button id="einstellungen-fertig" class="nebenknopf bearbeiten-knopf offen">Fertig</button>
+    </div>
+
+    <h3>Split</h3>
+    <div id="einstellungen-gym-split" class="segment"></div>
+    <p id="einstellungen-gym-split-hinweis" class="hinweis"></p>
+
+    <h3>Wochenziel</h3>
+    <label class="einstellung-zeile">
+      <span>Trainings pro Woche</span>
+      <input id="einstellungen-gym-ziel" type="number" min="1" max="7" inputmode="numeric">
+    </label>
+  </section>
+
+  <!-- Das JavaScript kommt ganz ans Ende, damit die Bereiche schon geladen sind -->
+  <script src="app.js"></script>
+</body>
+</html>

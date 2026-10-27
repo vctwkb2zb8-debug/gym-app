@@ -1,0 +1,664 @@
+/* ===== Farbpalette =====
+   Alle Farben stehen hier an EINER Stelle (sogenannte CSS-Variablen).
+   Weiter unten wird nur noch mit var(--name) auf sie verwiesen.
+   Die App ist immer dunkel: fast schwarz, helle Schrift, ein warmer Akzent. */
+:root {
+  --hintergrund: #0a0a0a;     /* Seitenhintergrund, passt zum Icon */
+  --flaeche: #141414;         /* Karten und Eingabefelder */
+  --flaeche-hell: #1e1e1e;    /* Knöpfe, Felder in Karten */
+  --rand: #262626;            /* feine Trennlinien */
+  --text: #ededed;
+  --text-leise: #8a8a8a;      /* Nebeninfos wie Datum */
+  --text-blass: #555555;      /* Inaktives, Platzhalter */
+  --akzent: #d8c8a2;          /* der einzige Farbton: erledigt, aktiv, Fortschritt */
+  --akzent-text: #0a0a0a;     /* Schrift auf dem Akzent */
+  --warnung: #e08a7a;
+  --radius: 12px;
+  color-scheme: dark;         /* Datumsauswahl & Tastatur ebenfalls dunkel */
+}
+
+
+/* ===== Grundlayout ===== */
+/* Kein Doppeltipp-Zoom, keine automatische Textvergrößerung beim Drehen des Handys */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  background: var(--hintergrund);
+}
+
+body {
+  /* Systemschrift: auf dem iPhone San Francisco, auf Android Roboto – nichts aus dem Netz */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+  background: var(--hintergrund);
+  color: var(--text);
+  margin: 0 auto;
+  max-width: 560px;              /* auf großen Bildschirmen nicht zu breit */
+  /* Oben/unten Platz für Statusleiste und Kamera-Aussparung */
+  padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 40px);
+  -webkit-font-smoothing: antialiased;
+}
+
+
+h2 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+
+/* Zwischenüberschriften: klein, gesperrt, in Großbuchstaben */
+h3 {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-leise);
+  margin: 36px 0 10px;
+}
+
+/* Alle Eingabefelder und Knöpfe: gleiche Grundform */
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  font-size: 16px;               /* unter 16 px zoomt das iPhone beim Antippen von selbst hinein */
+  color: var(--text);
+}
+
+input,
+select,
+textarea {
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--text-blass);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-blass);
+}
+
+button {
+  background: var(--flaeche-hell);
+  border: none;
+  border-radius: var(--radius);
+  padding: 11px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  opacity: 0.7;
+}
+
+/* Hauptknöpfe („Hinzufügen“, „Speichern“): hell auf dunkel */
+button[type="submit"] {
+  background: var(--text);
+  color: var(--hintergrund);
+  font-weight: 600;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 8px 0;
+  resize: vertical;
+}
+
+/* Kleine Erklärtexte */
+.hinweis {
+  color: var(--text-leise);
+  font-size: 14px;
+}
+
+/* Funktionsknöpfe wie „Plan bearbeiten“: umrandet, mit Symbol, gut als Knopf erkennbar */
+.nebenknopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid #3d3d3d;
+  padding: 10px 16px;
+  margin: 12px 0;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Das Symbol vor dem Text: ein kleines Bild, das sich in der Textfarbe einfärbt (Maske) */
+.nebenknopf::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask: var(--knopf-symbol) center / contain no-repeat;
+  mask: var(--knopf-symbol) center / contain no-repeat;
+}
+
+/* Stift = bearbeiten, Plus = hinzufügen, Haken = fertig */
+.bearbeiten-knopf {
+  --knopf-symbol: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19 9l-4-4L4 16z'/%3E%3C/svg%3E");
+}
+
+.plus-knopf {
+  --knopf-symbol: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E");
+}
+
+/* Solange man bearbeitet („Fertig“): gefüllter heller Knopf mit Haken */
+.nebenknopf.offen {
+  --knopf-symbol: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--hintergrund);
+}
+
+/* Umschalter mit mehreren Knöpfen (Einheit A/B/C, Split-Wahl): der aktive ist hell hinterlegt */
+.segment {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin: 12px 0;
+  background: var(--flaeche);
+  border-radius: 14px;
+}
+
+.segment button {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 6px;
+  font-size: 15px;
+  background: none;
+  color: var(--text-leise);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.segment button.aktiv {
+  background: var(--flaeche-hell);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Feld „Name dieser Einheit“ im Bearbeiten-Modus */
+.gym-name-feld {
+  display: block;
+  margin: 12px 0 16px;
+}
+
+.gym-name-feld span {
+  display: block;
+  font-size: 13px;
+  color: var(--text-leise);
+  margin-bottom: 4px;
+}
+
+.gym-name-feld input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Feine Linien-Symbole (SVG). Sie färben sich mit der Textfarbe. */
+.symbol {
+  width: 18px;
+  height: 18px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Aufklapp-Bereiche (<details>): eigener Pfeil statt des Standard-Dreiecks */
+summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary::after {
+  content: "";
+  float: right;
+  width: 7px;
+  height: 7px;
+  margin: 7px 4px 0 0;
+  border-right: 1.5px solid var(--text-leise);
+  border-bottom: 1.5px solid var(--text-leise);
+  transform: rotate(45deg);      /* ein auf die Spitze gestelltes Winkelchen = Pfeil nach unten */
+  transition: transform 0.2s;
+}
+
+details[open] > summary::after {
+  transform: rotate(-135deg);    /* offen: Pfeil nach oben */
+  margin-top: 10px;
+}
+
+
+
+/* ===== Kopfzeile: Überschrift links, Knopf rechts ===== */
+.kopfzeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kopfzeile h2 {
+  margin: 0;
+}
+
+.kopfzeile .nebenknopf {
+  margin: 0;
+}
+
+/* Knopf nur mit Symbol, z. B. das Zahnrad */
+.symbolknopf {
+  background: none;
+  padding: 8px;
+  margin-right: -8px;            /* bündig mit dem rechten Rand */
+  color: var(--text-leise);
+}
+
+.symbolknopf svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* ===== Datumsleiste ===== */
+.tagesleiste {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 8px;
+}
+
+.tagesleiste button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  background: var(--flaeche);
+  color: var(--text-leise);
+}
+
+.tagesleiste button:disabled {
+  opacity: 0.3;                  /* „›“ ist blass, wenn man schon bei heute ist */
+  cursor: default;
+}
+
+.tag-anzeige {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Hinweis, wenn ein früherer Tag offen ist */
+.frueherer-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--flaeche);
+  border-left: 2px solid var(--akzent);
+  border-radius: 4px var(--radius) var(--radius) 4px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-leise);
+}
+
+.frueherer-tag button {
+  flex: none;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+
+/* ===== Gym ===== */
+/* Eine Übung = eine ruhige Karte */
+.gym-uebung {
+  background: var(--flaeche);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.gym-uebung strong {
+  display: block;
+  font-weight: 500;
+}
+
+/* Kleine graue Zeile: Gewichtsart */
+.gym-meta {
+  display: block;
+  font-size: 13px;
+  color: var(--text-leise);
+  margin: 2px 0 6px;
+}
+
+/* Hinweis „Gewicht erhöhen / reduzieren“ */
+.gym-tipp {
+  display: block;
+  font-size: 13px;
+  color: var(--akzent);
+  margin: 4px 0 6px;
+}
+
+/* Eine Satz-Zeile: „1 [kg] [Wdh.] [Haken] Zuletzt …“ */
+.gym-satz {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.gym-nummer {
+  flex: none;
+  width: 16px;
+  font-size: 13px;
+  color: var(--text-blass);
+}
+
+.gym-satz input {
+  width: 58px;
+  padding: 9px 6px;
+  text-align: center;
+  background: var(--flaeche-hell);
+  border-color: transparent;
+}
+
+/* Vorgefüllter Vorschlag, noch nicht bestätigt: blass */
+.gym-satz input.vorschlag {
+  color: var(--text-blass);
+}
+
+.gym-haken {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-leise);
+}
+
+/* Übung zum Abhaken (z. B. Dehnen): Name links, Haken rechts */
+.gym-haken-karte {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Gemachter Satz: Haken im Akzent */
+.gym-satz.gemacht .gym-haken,
+.gym-haken-karte.gemacht .gym-haken {
+  background: var(--akzent);
+  color: var(--akzent-text);
+}
+
+.gym-letztes {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-blass);
+  text-align: right;
+}
+
+.gym-letztes.besser {
+  color: var(--akzent);
+}
+
+/* Plan bearbeiten: eine Zeile pro Übung mit hoch, runter, Name, ändern, entfernen */
+.gym-edit-zeile {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-bottom: 1px solid var(--rand);
+  padding: 6px 0;
+}
+
+.gym-edit-zeile button {
+  flex: none;
+  padding: 10px;
+  background: none;
+  color: var(--text-leise);
+}
+
+.gym-edit-zeile button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.gym-edit-name {
+  flex: 1;
+  padding: 0 6px;
+}
+
+/* Formular für eine Übung */
+.gym-edit-form {
+  background: var(--flaeche);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 10px 0;
+}
+
+.gym-edit-form label {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.gym-edit-form label span {
+  display: block;
+  font-size: 13px;
+  color: var(--text-leise);
+  margin-bottom: 4px;
+}
+
+.gym-edit-form input,
+.gym-edit-form select {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--flaeche-hell);
+  border-color: transparent;
+}
+
+.gym-edit-knoepfe {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.gym-edit-knoepfe button[type="submit"] {
+  flex: 1;
+}
+
+/* Fortschritt */
+#gym-fortschritt {
+  margin-top: 20px;
+  border-top: 1px solid var(--rand);
+  padding-top: 18px;
+}
+
+#gym-fortschritt summary {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+/* Ring mit Text daneben */
+.gym-ring-zeile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 18px 0 8px;
+}
+
+.gym-ring-zeile > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--text-leise);
+}
+
+.gym-ring-zeile strong {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.gym-ring {
+  flex: none;
+  width: 88px;
+  height: 88px;
+}
+
+.gym-ring .ring-spur {
+  fill: none;
+  stroke: var(--rand);
+  stroke-width: 6;
+}
+
+.gym-ring .ring-fuellung {
+  fill: none;
+  stroke: var(--akzent);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.gym-ring .ring-zahl {
+  fill: var(--text);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* Gesamtkurve */
+.gym-kurve {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 8px 0 0;
+}
+
+.gym-kurve .nulllinie {
+  stroke: var(--rand);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.gym-kurve .verlauf {
+  fill: none;
+  stroke: var(--akzent);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.gym-kurve .achse {
+  fill: var(--text-blass);
+  font-size: 10px;
+}
+
+.gym-kurve .punkt {
+  fill: var(--akzent);
+  stroke: var(--hintergrund);
+  stroke-width: 2;
+}
+
+/* Eine kleine Linie pro Übung: Name | Linie | Prozent */
+.gym-fortschritt-zeile {
+  display: grid;
+  grid-template-columns: 1fr 120px 3.6em;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rand);
+}
+
+.gym-fortschritt-zeile .wert {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-leise);
+}
+
+.gym-fortschritt-zeile .wert.minus {
+  color: var(--warnung);
+}
+
+.gym-linie {
+  width: 120px;
+  height: 28px;
+}
+
+.gym-linie .linie {
+  fill: none;
+  stroke: var(--akzent);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.gym-linie .linie-punkt {
+  fill: var(--akzent);
+}
+
+
+/* ===== Einstellungen ===== */
+/* Eine Zeile: Text links, Schalter oder Eingabe rechts */
+.einstellung-zeile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rand);
+}
+
+.einstellung-zeile > span:first-child {
+  flex: 1;                       /* der Text nimmt den freien Platz */
+}
+
+
+.einstellung-zeile input[type="number"] {
+  width: 3.5em;
+  padding: 8px;
+  text-align: center;
+}
+
+
+.einstellung-zeile button:not([type="submit"]) {
+  background: none;
+  padding: 8px;
+  color: var(--text-leise);
+}
+
+
+
+/* ===== Hilfsklasse ===== */
+/* Wer diese Klasse hat, wird nicht angezeigt (Gym oder Einstellungen) */
+.versteckt {
+  display: none !important; /* !important = gewinnt immer, auch gegen Regeln mit #id */
+}
