@@ -148,9 +148,9 @@ for (const knopf of document.querySelectorAll(".zu-heute")) {
 //                     haken: { dehnen: true } } }
 // Ein Satz zählt als gemacht, sobald er gespeichert ist (✓ getippt oder ein Wert geändert).
 
-const GYM_SAETZE = 2;
+// Wie viele Sätze pro Übung, steht in den Einstellungen (gymSaetze)
 const GYM_WDH_MIN = 6;               // darunter: Gewicht reduzieren
-const GYM_WDH_ZIEL = 10;             // 2× so viele: Gewicht erhöhen
+const GYM_WDH_ZIEL = 10;             // alle Sätze so viele: Gewicht erhöhen
 const GYM_EINHEITEN = ["A", "B", "C"];   // alle möglichen Einheiten
 const GYM_KG_ARTEN = ["kg", "kg je Hand", "kg Scheiben gesamt", "nur Wdh.", "nur abhaken"];
 
@@ -303,8 +303,8 @@ function gymHinweisArt(vorher) {
   if (!vorher) return null;
   const saetze = vorher.saetze;
   if (gymSatzGemacht(saetze[0]) && saetze[0].wdh < GYM_WDH_MIN) return "reduzieren";
-  const ersteSaetze = saetze.slice(0, GYM_SAETZE);
-  const geschafft = ersteSaetze.length >= GYM_SAETZE && ersteSaetze.every(function (s) {
+  const ersteSaetze = saetze.slice(0, gymSaetze());
+  const geschafft = ersteSaetze.length >= gymSaetze() && ersteSaetze.every(function (s) {
     return gymSatzGemacht(s) && s.wdh >= GYM_WDH_ZIEL;
   });
   return geschafft ? "erhoehen" : null;
@@ -400,12 +400,12 @@ function zeigeGymUebungen(plan, einheit, tag) {
       const tipp = document.createElement("span");
       tipp.className = "gym-tipp";
       tipp.textContent = art === "erhoehen"
-        ? "Letztes Mal 2× " + GYM_WDH_ZIEL + " geschafft → Gewicht erhöhen"
+        ? "Letztes Mal " + gymSaetze() + "× " + GYM_WDH_ZIEL + " geschafft → Gewicht erhöhen"
         : "Letztes Mal Satz 1 unter " + GYM_WDH_MIN + " Wdh. → Gewicht reduzieren";
       karte.append(tipp);
     }
 
-    for (let nr = 0; nr < GYM_SAETZE; nr++) {
+    for (let nr = 0; nr < gymSaetze(); nr++) {
       karte.append(gymSatzZeile(uebung, nr, tag, vorher));
     }
     liste.append(karte);
@@ -931,19 +931,24 @@ function zeigeGymFortschritt() {
 
 
 // ===== Einstellungen =====
-// Gespeichert unter "einstellungen", z. B. { gymProWoche: 3, gymSplit: 2 }
+// Gespeichert unter "einstellungen", z. B. { gymProWoche: 3, gymSplit: 2, gymSaetze: 3 }
 // Was dort nicht steht, hat den Standardwert.
 
 function ladeEinstellungen() {
   const e = laden("einstellungen", {});
   return {
     gymProWoche: e.gymProWoche || 2,
-    gymSplit: [1, 2, 3].includes(e.gymSplit) ? e.gymSplit : 1   // 1 = Ganzkörper, 2 = A/B, 3 = A/B/C
+    gymSplit: [1, 2, 3].includes(e.gymSplit) ? e.gymSplit : 1,  // 1 = Ganzkörper, 2 = A/B, 3 = A/B/C
+    gymSaetze: e.gymSaetze || 2
   };
 }
 
 function gymProWoche() {
   return ladeEinstellungen().gymProWoche;
+}
+
+function gymSaetze() {
+  return ladeEinstellungen().gymSaetze;
 }
 
 function gymSplit() {
@@ -953,6 +958,7 @@ function gymSplit() {
 function zeigeEinstellungen() {
   const e = ladeEinstellungen();
   document.getElementById("einstellungen-gym-ziel").value = e.gymProWoche;
+  document.getElementById("einstellungen-gym-saetze").value = e.gymSaetze;
 
   // Split: Ganzkörper, 2er- oder 3er-Split
   const splitLeiste = document.getElementById("einstellungen-gym-split");
@@ -987,6 +993,15 @@ document.getElementById("einstellungen-gym-ziel").addEventListener("change", fun
   e.gymProWoche = ziel;
   speichern("einstellungen", e);
   zeigeGymFortschritt();
+});
+
+document.getElementById("einstellungen-gym-saetze").addEventListener("change", function () {
+  const saetze = Math.min(6, Math.max(1, Math.round(Number(this.value) || 2)));
+  this.value = saetze;
+  const e = ladeEinstellungen();
+  e.gymSaetze = saetze;
+  speichern("einstellungen", e);
+  zeigeGym();
 });
 
 document.getElementById("einstellungen-knopf").addEventListener("click", function () {
