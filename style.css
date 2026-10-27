@@ -35,8 +35,8 @@ body {
   color: var(--text);
   margin: 0 auto;
   max-width: 560px;              /* auf großen Bildschirmen nicht zu breit */
-  /* Oben/unten Platz für Statusleiste und Kamera-Aussparung */
-  padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 40px);
+  /* Oben/unten Platz für Statusleiste, Kamera-Aussparung und die Pausen-Leiste */
+  padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 100px);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -624,6 +624,41 @@ details[open] > summary::after {
 
 .gym-linie .linie-punkt {
   fill: var(--akzent);
+}
+
+
+/* ===== Pausen-Timer: Leiste ganz unten ===== */
+#pause {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px calc(env(safe-area-inset-bottom) + 14px);
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(16px);   /* Inhalt darunter verschwimmt leicht */
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--rand);
+}
+
+#pause-text {
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;   /* Ziffern gleich breit, damit nichts wackelt */
+}
+
+/* Pause vorbei: Leiste im Akzent */
+#pause.vorbei {
+  background: var(--akzent);
+  color: var(--akzent-text);
+}
+
+#pause.vorbei button {
+  background: rgba(0, 0, 0, 0.15);
+  color: var(--akzent-text);
 }
 
 

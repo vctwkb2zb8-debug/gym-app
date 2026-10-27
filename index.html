@@ -53,6 +53,12 @@
     </details>
   </section>
 
+  <!-- Pausen-Timer: Leiste unten, erscheint nach jedem ✓ (füllt app.js) -->
+  <div id="pause" class="versteckt">
+    <span id="pause-text"></span>
+    <button id="pause-ueberspringen" type="button">Überspringen</button>
+  </div>
+
   <!-- Einstellungen: erreichbar über das Zahnrad. Alles wird nur auf diesem Gerät gespeichert. -->
   <section id="einstellungen" class="versteckt">
     <div class="kopfzeile">
@@ -73,6 +79,11 @@
       <span>Sätze pro Übung</span>
       <input id="einstellungen-gym-saetze" type="number" min="1" max="6" inputmode="numeric">
     </label>
+    <label class="einstellung-zeile">
+      <span>Pause nach jedem Satz (Sek.)</span>
+      <input id="einstellungen-gym-pause" type="number" min="0" max="600" step="15" inputmode="numeric">
+    </label>
+    <p class="hinweis">0 = kein Pausen-Timer.</p>
   </section>
 
   <!-- Das JavaScript kommt ganz ans Ende, damit die Bereiche schon geladen sind -->

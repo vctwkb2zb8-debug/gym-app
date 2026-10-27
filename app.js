@@ -550,11 +550,66 @@ function gymSatzZeile(uebung, nr, tag, vorher) {
     speichereSatz(uebung.id, nr, w.kg, w.wdh);
     gemacht = true;
     aktualisiere();
+    startePause();
   }
 
   aktualisiere();
   return zeile;
 }
+
+
+// --- Pausen-Timer ---
+// Startet nach jedem ✓. Die Dauer steht in den Einstellungen (gymPause, 0 = aus).
+// Wir merken uns die Uhrzeit, wann die Pause endet – so stimmt der Timer auch,
+// wenn das Handy zwischendurch gesperrt war.
+
+let pauseEnde = null;    // Zeitpunkt in Millisekunden, wann die Pause vorbei ist
+let pauseUhr = null;     // der „Wecker“, der jede Viertelsekunde die Anzeige auffrischt
+
+function startePause() {
+  const sekunden = gymPause();
+  if (sekunden === 0) return;
+  pauseEnde = Date.now() + sekunden * 1000;
+  clearInterval(pauseUhr);
+  pauseUhr = setInterval(zeigePause, 250);
+  zeigePause();
+}
+
+function beendePause() {
+  clearInterval(pauseUhr);
+  pauseEnde = null;
+  document.getElementById("pause").classList.add("versteckt");
+}
+
+// 83 → "1:23"
+function minutenText(sekunden) {
+  return Math.floor(sekunden / 60) + ":" + String(sekunden % 60).padStart(2, "0");
+}
+
+function zeigePause() {
+  const leiste = document.getElementById("pause");
+  const text = document.getElementById("pause-text");
+  const knopf = document.getElementById("pause-ueberspringen");
+  const rest = Math.ceil((pauseEnde - Date.now()) / 1000);
+  leiste.classList.remove("versteckt");
+
+  if (rest > 0) {
+    text.textContent = "Pause " + minutenText(rest);
+    knopf.textContent = "Überspringen";
+    leiste.classList.remove("vorbei");
+    return;
+  }
+
+  // Pause vorbei: kurz vibrieren (falls das Handy das kann), nach 5 Sekunden ausblenden
+  clearInterval(pauseUhr);
+  text.textContent = "Pause vorbei – nächster Satz!";
+  knopf.textContent = "OK";
+  leiste.classList.add("vorbei");
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  pauseUhr = setTimeout(beendePause, 5000);
+}
+
+document.getElementById("pause-ueberspringen").addEventListener("click", beendePause);
 
 
 // --- Plan bearbeiten (✏️ ▲ ▼ ✕ +) ---
@@ -939,8 +994,13 @@ function ladeEinstellungen() {
   return {
     gymProWoche: e.gymProWoche || 2,
     gymSplit: [1, 2, 3].includes(e.gymSplit) ? e.gymSplit : 1,  // 1 = Ganzkörper, 2 = A/B, 3 = A/B/C
-    gymSaetze: e.gymSaetze || 2
+    gymSaetze: e.gymSaetze || 2,
+    gymPause: typeof e.gymPause === "number" ? e.gymPause : 90   // Sekunden, 0 = aus
   };
+}
+
+function gymPause() {
+  return ladeEinstellungen().gymPause;
 }
 
 function gymProWoche() {
@@ -959,6 +1019,7 @@ function zeigeEinstellungen() {
   const e = ladeEinstellungen();
   document.getElementById("einstellungen-gym-ziel").value = e.gymProWoche;
   document.getElementById("einstellungen-gym-saetze").value = e.gymSaetze;
+  document.getElementById("einstellungen-gym-pause").value = e.gymPause;
 
   // Split: Ganzkörper, 2er- oder 3er-Split
   const splitLeiste = document.getElementById("einstellungen-gym-split");
@@ -1002,6 +1063,16 @@ document.getElementById("einstellungen-gym-saetze").addEventListener("change", f
   e.gymSaetze = saetze;
   speichern("einstellungen", e);
   zeigeGym();
+});
+
+document.getElementById("einstellungen-gym-pause").addEventListener("change", function () {
+  // Leeres Feld = Standard 90; 0 schaltet den Timer aus; höchstens 10 Minuten
+  const zahl = this.value === "" ? 90 : Math.round(Number(this.value) || 0);
+  const pause = Math.min(600, Math.max(0, zahl));
+  this.value = pause;
+  const e = ladeEinstellungen();
+  e.gymPause = pause;
+  speichern("einstellungen", e);
 });
 
 document.getElementById("einstellungen-knopf").addEventListener("click", function () {
